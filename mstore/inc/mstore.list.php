@@ -199,20 +199,26 @@ if ($o && $p) {
 
 if (empty($sql_item_string)) {
     $where = array_filter($where);
-    $where = ($where) ? 'WHERE ' . implode(' AND ', $where) : '';
-    $sql_item_count = "SELECT COUNT(*) FROM $db_mstore as p $join_condition LEFT JOIN $db_users AS u ON u.user_id=p.msitem_ownerid $where";
+    $where_sql = ($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
-    $limit = '';
-    if ($maxItemRowsPerPage > 0) {
-        $limit = "LIMIT $d, $maxItemRowsPerPage";
-    }
+    // Подсчёт без дублей товаров
+    $sql_item_count = "SELECT COUNT(DISTINCT p.msitem_id)
+        FROM $db_mstore AS p
+        $join_condition
+        LEFT JOIN $db_users AS u ON u.user_id = p.msitem_ownerid
+        $where_sql";
 
+    // Основной запрос без дублей товаров
     $sql_item_string = "SELECT p.*, u.* $join_columns
-        FROM $db_mstore as p $join_condition
-        LEFT JOIN $db_users AS u ON u.user_id=p.msitem_ownerid
-        $where
-        ORDER BY $orderby $limit";
+        FROM $db_mstore AS p
+        $join_condition
+        LEFT JOIN $db_users AS u ON u.user_id = p.msitem_ownerid
+        $where_sql
+        GROUP BY p.msitem_id
+        ORDER BY $orderby
+        LIMIT $d, $maxItemRowsPerPage";
 }
+
 
 try {
     $totallines = $db->query($sql_item_count, $params)->fetchColumn();
