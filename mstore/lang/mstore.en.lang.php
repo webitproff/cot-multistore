@@ -16,28 +16,53 @@ if (!isset($L['PFS'])) {
     }
 }
 
-$L['cfg_autovalidate'] = 'Automatic Item Approval';
-$L['cfg_autovalidate_hint'] = 'Automatically approve item publications created by users with administrative rights for the section';
-$L['cfg_count_admin'] = 'Count Admin Visits';
-$L['cfg_count_admin_hint'] = 'Include admin visits in the site visit statistics';
-$L['cfg_maxlistsperpage'] = 'Max Categories per Page';
-$L['cfg_order'] = 'Sort Field';
-$L['cfg_title_page'] = 'Item Title Format';
-$L['cfg_title_page_hint'] = 'Options: {TITLE}, {CATEGORY}';
-$L['cfg_way'] = 'Sort Direction';
-$L['cfg_truncatetext'] = 'Limit Text Size in Item Lists';
-$L['cfg_truncatetext_hint'] = '0 to disable';
-$L['cfg_allowemptytext'] = 'Allow Empty Item Description';
-$L['cfg_keywords'] = 'Keywords';
+$L['cfg_mstoremarkup'] = 'Product description markup';
+$L['cfg_mstoremarkup_hint'] = 'Enable the use of HTML or BBCode in the product description';
 
-$L['info_desc'] = 'Content Management: Items and Item Categories';
+$L['cfg_mstoreparser'] = 'Description parser';
+$L['cfg_mstoreparser_hint'] = 'Choose a parser for processing product descriptions (e.g., BBCode, HTML, etc.)';
 
-$L['cfg_order_params'] = [];
-$L['cfg_way_params'] = array($L['Ascending'], $L['Descending']);
-$L['cfg_metatitle'] = 'Meta Title';
-$L['cfg_metadesc'] = 'Meta Description';
+$L['cfg_mstorecount_admin'] = 'Count admin visits';
+$L['cfg_mstorecount_admin_hint'] = 'Include admin visits in site traffic statistics';
 
-$L['Mstore'] = 'Mstore';
+$L['cfg_mstoreautovalidate'] = 'Auto-approve products';
+$L['cfg_mstoreautovalidate_hint'] = 'Automatically approve products submitted by users with category admin rights';
+
+$L['cfg_mstoremaxlistsperpage'] = 'Max. categories per page';
+$L['cfg_mstoremaxlistsperpage_hint'] = 'to do';
+
+
+$L['cfg_mstoretitle_page'] = 'Product title format';
+$L['cfg_mstoretitle_page_hint'] = 'Options: {TITLE}, {CATEGORY}';
+
+$L['cfg_mstoreblacktreecatspage'] = 'Category blacklist';
+$L['cfg_mstoreblacktreecatspage_hint'] = 'Category codes excluded from the category tree on pages (e.g.: system, unvalidated)';
+
+// === STRUCTURE ===
+$L['cfg_mstoreorder'] = 'Sorting field';
+$L['cfg_mstoreorder_params'] = [];
+
+$L['cfg_mstoreway'] = 'Sorting direction';
+$L['cfg_mstoreway_params'] = [$L['Ascending'], $L['Descending']];
+
+$L['cfg_maxrowsperpage'] = 'Max. items per list page';
+
+$L['cfg_mstoretruncatetext'] = 'Truncate text length in product lists';
+$L['cfg_mstoretruncatetext_hint'] = '0 to disable truncation';
+
+$L['cfg_mstoreallowemptytext'] = 'Allow empty product description';
+
+$L['cfg_mstorekeywords'] = 'Meta keywords';
+$L['cfg_mstoremetatitle'] = 'Meta title';
+$L['cfg_mstoremetadesc'] = 'Meta description';
+
+$L['cfg_mstoremaxlistsperpage'] = 'Max. categories per page'; // duplicated. It necessary for categories
+
+$L['info_desc'] = 'Content management: products and product categories';
+
+
+$L['mstore_Mstore'] = 'MultiStore';
+
 $L['adm_valqueue'] = 'In Approval Queue';
 $L['adm_validated'] = 'Approved';
 $L['adm_expired'] = 'Expired';
