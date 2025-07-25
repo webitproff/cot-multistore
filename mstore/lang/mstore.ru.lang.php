@@ -16,29 +16,51 @@ if (!isset($L['PFS'])) {
     }
 }
 
-$L['cfg_autovalidate'] = 'Автоматическое утверждение товаров';
-$L['cfg_autovalidate_hint'] = 'Автоматически утверждать публикацию товаров, созданных пользователем с правом администрирования раздела';
-$L['cfg_count_admin'] = 'Считать посещения администраторов';
-$L['cfg_count_admin_hint'] = 'Включить посещения администраторов в статистику посещаемости сайта';
-$L['cfg_maxlistsperpage'] = 'Макс. количество категорий на странице';
-$L['cfg_order'] = 'Поле сортировки';
-$L['cfg_title_page'] = 'Формат заголовка товара';
-$L['cfg_title_page_hint'] = 'Опции: {TITLE}, {CATEGORY}';
-$L['cfg_way'] = 'Направление сортировки';
-$L['cfg_truncatetext'] = 'Ограничить размер текста в списках товаров';
-$L['cfg_truncatetext_hint'] = '0 для отключения';
-$L['cfg_allowemptytext'] = 'Разрешить пустое описание товара';
-$L['cfg_keywords'] = 'Ключевые слова';
+$L['cfg_mstoremarkup'] = 'Разметка в описании товара';
+$L['cfg_mstoremarkup_hint'] = 'Включить использование HTML или BBCode в описании товара';
+
+$L['cfg_mstoreparser'] = 'Парсер описания';
+$L['cfg_mstoreparser_hint'] = 'Выберите парсер для обработки описания товара (например, BBCode, HTML и т.д.)';
+
+$L['cfg_mstorecount_admin'] = 'Считать посещения администраторов';
+$L['cfg_mstorecount_admin_hint'] = 'Включить посещения администраторов в статистику посещаемости сайта';
+
+$L['cfg_mstoreautovalidate'] = 'Автоматическое утверждение товаров';
+$L['cfg_mstoreautovalidate_hint'] = 'Автоматически утверждать публикацию товаров, созданных пользователем с правом администрирования раздела';
+
+$L['cfg_mstoremaxlistsperpage'] = 'Макс. количество категорий на странице';
+
+$L['cfg_mstoretitle_page'] = 'Формат заголовка товара';
+$L['cfg_mstoretitle_page_hint'] = 'Опции: {TITLE}, {CATEGORY}';
+
+$L['cfg_mstoreblacktreecatspage'] = 'Черный список категорий';
+$L['cfg_mstoreblacktreecatspage_hint'] = 'Коды категорий, исключенные из дерева категорий на страницах (например: system, unvalidated)';
+
+// === STRUCTURE ===
+$L['cfg_mstoreorder'] = 'Поле сортировки';
+$L['cfg_mstoreorder_params'] = [];
+
+$L['cfg_mstoreway'] = 'Направление сортировки';
+$L['cfg_mstoreway_params'] = [$L['Ascending'], $L['Descending']];
+
+$L['cfg_maxrowsperpage'] = 'Макс. элементов на странице списка';
+
+$L['cfg_mstoretruncatetext'] = 'Ограничить размер текста в списках товаров';
+$L['cfg_mstoretruncatetext_hint'] = '0 для отключения';
+
+$L['cfg_mstoreallowemptytext'] = 'Разрешить пустое описание товара';
+
+$L['cfg_mstorekeywords'] = 'Ключевые слова';
+$L['cfg_mstoremetatitle'] = 'Meta-заголовок';
+$L['cfg_mstoremetadesc'] = 'Meta-описание';
+
+$L['cfg_mstoremaxlistsperpage'] = 'Макс. количество категорий на странице'; // duplicated. It necessary for categories
 
 $L['info_desc'] = 'Управление контентом: товары и категории товаров';
 
-$L['cfg_order_params'] = [];
-$L['cfg_way_params'] = array($L['Ascending'], $L['Descending']);
-$L['cfg_metatitle'] = 'Meta-заголовок';
-$L['cfg_metadesc'] = 'Meta-описание';
 
 
-$L['Mstore'] = 'Mstore';
+$L['mstore_Mstore'] = 'MultiStore';
 $L['adm_valqueue'] = 'В очереди на утверждение';
 $L['adm_validated'] = 'Утвержденные';
 $L['adm_expired'] = 'С истекшим сроком';
