@@ -29,7 +29,7 @@ $adminPath[] = [cot_url('admin', 'm=extensions'), Cot::$L['Extensions']];
 $adminPath[] = [cot_url('admin', 'm=extensions&a=details&mod='.$m), $cot_modules[$m]['title']];
 $adminPath[] = [cot_url('admin', 'm='.$m), Cot::$L['Administration']];
 $adminHelp = Cot::$L['adm_help_mstore'];
-$adminTitle = Cot::$L['Mstore'];
+$adminTitle = Cot::$L['mstore_Mstore'];
 
 $id = cot_import('id', 'G', 'INT');
 
@@ -84,15 +84,15 @@ if ($pg > 1) {
 }
 
 if ($filter == 'all') {
-	$sqlwhere = "1 ";
+    $sqlwhere = "msitem_title IS NOT NULL AND msitem_title != ''";
 } elseif ($filter == 'valqueue') {
-	$sqlwhere = 'msitem_state = ' . MstoreDictionary::STATE_PENDING ;
+    $sqlwhere = 'msitem_state = ' . MstoreDictionary::STATE_PENDING . " AND msitem_title IS NOT NULL AND msitem_title != ''";
 } elseif ($filter == 'validated') {
-	$sqlwhere = 'msitem_state = ' . MstoreDictionary::STATE_PUBLISHED ;
+    $sqlwhere = 'msitem_state = ' . MstoreDictionary::STATE_PUBLISHED . " AND msitem_title IS NOT NULL AND msitem_title != ''";
 } elseif ($filter == 'drafts') {
-	$sqlwhere = 'msitem_state = ' . MstoreDictionary::STATE_DRAFT;
+    $sqlwhere = 'msitem_state = ' . MstoreDictionary::STATE_DRAFT . " AND msitem_title IS NOT NULL AND msitem_title != ''";
 } elseif ($filter == 'expired') {
-	$sqlwhere = "msitem_begin > {$sys['now']} OR (msitem_expire <> 0 AND msitem_expire < {$sys['now']})";
+    $sqlwhere = "(msitem_begin > {$sys['now']} OR (msitem_expire <> 0 AND msitem_expire < {$sys['now']})) AND msitem_title IS NOT NULL AND msitem_title != ''";
 }
 
 $catsub = cot_structure_children('mstore', '');
@@ -380,6 +380,9 @@ foreach ($sql_mstore->fetchAll() as $row) {
         $sub_count = $sql_mstore_subcount->fetchColumn();
     }
 	$row['msitem_file'] = intval($row['msitem_file']);
+	//$tags = cot_generate_mstoretags($row, 'ADMIN_MSTORE_', 200);
+	//$tags['ADMIN_MSTORE_TITLE'] = !empty($row['msitem_title']) ? htmlspecialchars($row['msitem_title']) : 'Без названия';
+	//$t->assign($tags);
 	$t->assign(cot_generate_mstoretags($row, 'ADMIN_MSTORE_', 200));
 	$t->assign([
 		'ADMIN_MSTORE_ID_URL' => cot_url('mstore', 'c=' . $row['msitem_cat'] . '&id=' . $row['msitem_id']),
@@ -392,8 +395,7 @@ foreach ($sql_mstore->fetchAll() as $row) {
 		'ADMIN_MSTORE_ODDEVEN' => cot_build_oddeven($ii),
 		'ADMIN_MSTORE_CAT_COUNT' => $sub_count,
 	]);
-	$t->assign(cot_generate_usertags($row['msitem_ownerid'], 'ADMIN_MSTORE_OWNER_'), htmlspecialchars($row['user_name']));
-
+	$t->assign(cot_generate_usertags($row['msitem_ownerid'], 'ADMIN_MSTORE_OWNER_'), htmlspecialchars($row['user_name'] ?? ''));
 	/* === Hook - Part2 : Include === */
 	foreach ($extp as $pl) {
 		include $pl;
