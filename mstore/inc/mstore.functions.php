@@ -650,6 +650,7 @@ function cot_mstore_updatecat($oldcat, $newcat)
 	return (bool) $db->update($db_mstore, ["msitem_cat" => $newcat], "msitem_cat='".$db->prep($oldcat)."'");
 }
 
+
 /**
  * Url address of the store item
  *

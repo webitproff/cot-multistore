@@ -147,6 +147,9 @@
               </div>
               <!-- ENDIF -->
               <!-- ENDIF -->
+<!-- IF {PHP|cot_plugin_active('mstorefilter')} -->
+{MSTORE_FORM_FILTER_PARAMS}
+<!-- ENDIF -->
               <div class="col-12">
                 <label for="mstoreDelete" class="form-label fw-semibold">{PHP.L.mstore_deleteitem}</label>
                 <div class="input-group has-validation">{MSTOREEDIT_FORM_DELETE}</div>

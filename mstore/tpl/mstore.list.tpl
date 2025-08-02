@@ -9,6 +9,11 @@
 <div class="min-vh-50 px-2 px-md-3 py-4">
   <div class="px-0 m-0 row justify-content-center">
     <div class="col-12 col-xxl-11"> 
+<!-- IF {PHP|cot_plugin_active('mstorefilter')} -->
+<div class="alert {MSTOREFILTER_MESSAGE_CLASS}">
+    {MSTOREFILTER_MESSAGE}
+</div>
+<!-- ENDIF -->
       {FILE "{PHP.cfg.themes_dir}/{PHP.cfg.defaulttheme}/warnings.tpl"} 
       <div class="col-12">
         <div class="row align-items-center mb-2">
@@ -131,6 +136,9 @@
         </div>
         <div class="col-12 col-lg-4 mx-auto">
 		{PHP|cot_build_structure_mstore_tree('', '')}
+<!-- IF {PHP|cot_plugin_active('mstorefilter')} -->
+{MSTORE_FILTER_FORM}
+<!-- ENDIF -->
           <!-- IF {PHP.usr.maingrp} == 5 -->
           <div class="card mt-4 mb-4">
             <div class="card-header">

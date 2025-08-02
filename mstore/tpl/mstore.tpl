@@ -104,7 +104,16 @@
           {MSTORE_COMMENTS}
           <!-- ENDIF -->
         </div>
-        <div class="col-12 col-md-4 mx-auto">
+        <div class="col-12 col-md-4">
+<!-- IF {PHP|cot_plugin_active('mstorefilter')} -->
+<h3>{PHP.L.mstorefilter_paramsItem}</h3>
+<dl class="row">
+    <!-- BEGIN: MSTORE_FILTER_PARAMS -->
+    <dt class="col-sm-4">{PARAM_TITLE}</dt>
+    <dd class="col-sm-8">{PARAM_VALUE}</dd>
+    <!-- END: MSTORE_FILTER_PARAMS -->
+</dl>
+<!-- ENDIF -->
           <!-- BEGIN: MSTORE_MULTI -->
           <div class="card mb-4">
             <div class="card-header">

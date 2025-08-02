@@ -97,12 +97,15 @@ if ($filter == 'all') {
 
 $catsub = cot_structure_children('mstore', '');
 if (count($catsub) < count(Cot::$structure['mstore'])) {
-	$sqlwhere .= " AND msitem_cat IN ('" . implode("','", $catsub) . "')";
+    $sqlwhere .= " AND msitem_cat IN ('" . implode("','", $catsub) . "')";
 }
 
+// Загружаем структуру категорий перед циклом
+//Cot::$structure['mstore'] = cot_build_structure_mstore_tree('mstore');
+cot::$structure['mstore'] = (!empty(cot::$structure['mstore']) && is_array(cot::$structure['mstore'])) ?
+    cot::$structure['mstore'] : [];
 $backUrl = cot_import('back', 'G', 'HTM');
-$backUrl = !empty($backUrl) ?
-    base64_decode($backUrl) : cot_url('admin', $urlParams, '', true);
+$backUrl = !empty($backUrl) ? base64_decode($backUrl) : cot_url('admin', $urlParams, '', true);
 
 /* === Hook  === */
 foreach (cot_getextplugins('mstore.admin.first') as $pl) {
@@ -369,41 +372,45 @@ $sql_mstore = Cot::$db->query("SELECT p.*, u.user_name
 		LIMIT $d, ".Cot::$cfg['mstore']['mstoremaxlistsperpage']);
 
 $ii = 0;
+
+
 /* === Hook - Part1 : Set === */
 $extp = cot_getextplugins('mstore.admin.loop');
 /* ===== */
+
 foreach ($sql_mstore->fetchAll() as $row) {
     $sub_count = 0;
     if (isset(Cot::$structure['mstore'][$row["msitem_cat"]])) {
-        $sql_mstore_subcount = Cot::$db->query("SELECT SUM(structure_count) FROM $db_structure WHERE structure_path LIKE '" .
-                Cot::$db->prep(Cot::$structure['mstore'][$row["msitem_cat"]]['rpath']) . "%' ");
+        $sql_mstore_subcount = Cot::$db->query("SELECT SUM(structure_count) FROM $db_structure WHERE structure_path LIKE '" . Cot::$db->prep(Cot::$structure['mstore'][$row["msitem_cat"]]['rpath']) . "%'");
         $sub_count = $sql_mstore_subcount->fetchColumn();
     }
-	$row['msitem_file'] = intval($row['msitem_file']);
-	//$tags = cot_generate_mstoretags($row, 'ADMIN_MSTORE_', 200);
-	//$tags['ADMIN_MSTORE_TITLE'] = !empty($row['msitem_title']) ? htmlspecialchars($row['msitem_title']) : 'Без названия';
-	//$t->assign($tags);
-	$t->assign(cot_generate_mstoretags($row, 'ADMIN_MSTORE_', 200));
-	$t->assign([
-		'ADMIN_MSTORE_ID_URL' => cot_url('mstore', 'c=' . $row['msitem_cat'] . '&id=' . $row['msitem_id']),
-		'ADMIN_MSTORE_OWNER' => cot_build_user($row['msitem_ownerid'], $row['user_name']),
-		'ADMIN_MSTORE_FILE_BOOL' => $row['msitem_file'],
-		'ADMIN_MSTORE_URL_FOR_VALIDATED' => cot_confirm_url(cot_url('admin', $common_params . '&a=validate&id=' . $row['msitem_id'] . '&d=' . $durl . '&' . cot_xg()), 'mstore', 'mstore_confirm_validate'),
-		'ADMIN_MSTORE_URL_FOR_UNVALIDATE' => cot_confirm_url(cot_url('admin', $common_params . '&a=unvalidate&id=' . $row['msitem_id'] . '&d=' . $durl . '&' . cot_xg()), 'mstore', 'mstore_confirm_unvalidate'),
-		'ADMIN_MSTORE_URL_FOR_DELETED' => cot_confirm_url(cot_url('admin', $common_params . '&a=delete&id=' . $row['msitem_id'] . '&d=' . $durl . '&' . cot_xg()), 'mstore', 'mstore_confirm_delete'),
-		'ADMIN_MSTORE_URL_FOR_EDIT' => cot_url('mstore', 'm=edit&id=' . $row['msitem_id']),
-		'ADMIN_MSTORE_ODDEVEN' => cot_build_oddeven($ii),
-		'ADMIN_MSTORE_CAT_COUNT' => $sub_count,
-	]);
-	$t->assign(cot_generate_usertags($row['msitem_ownerid'], 'ADMIN_MSTORE_OWNER_'), htmlspecialchars($row['user_name'] ?? ''));
-	/* === Hook - Part2 : Include === */
-	foreach ($extp as $pl) {
-		include $pl;
-	}
-	/* ===== */
-
-	$t->parse('MAIN.MSTORE_ROW');
-	$ii++;
+    $row['msitem_file'] = intval($row['msitem_file']);
+    $categoryPath = isset(Cot::$structure['mstore'][$row['msitem_cat']]['path']) ? Cot::$structure['mstore'][$row['msitem_cat']]['path'] : (isset(Cot::$structure['mstore'][$row['msitem_cat']]['code']) ? Cot::$structure['mstore'][$row['msitem_cat']]['code'] : $row['msitem_cat']);
+    $urlParams = ['c' => $categoryPath];
+    if (!empty($row['msitem_alias'])) {
+        $urlParams['al'] = $row['msitem_alias'];
+    } else {
+        $urlParams['id'] = $row['msitem_id'];
+    }
+    $row['item_pageurl'] = cot_url('mstore', $urlParams);
+    $t->assign(cot_generate_mstoretags($row, 'ADMIN_MSTORE_', 200));
+    $t->assign([
+        'ADMIN_MSTORE_ID_URL' => $row['item_pageurl'],
+        'ADMIN_MSTORE_OWNER' => cot_build_user($row['msitem_ownerid'], $row['user_name']),
+        'ADMIN_MSTORE_FILE_BOOL' => $row['msitem_file'],
+        'ADMIN_MSTORE_URL_FOR_VALIDATED' => cot_confirm_url(cot_url('admin', $common_params . '&a=validate&id=' . $row['msitem_id'] . '&d=' . $durl . '&' . cot_xg()), 'mstore', 'mstore_confirm_validate'),
+        'ADMIN_MSTORE_URL_FOR_UNVALIDATE' => cot_confirm_url(cot_url('admin', $common_params . '&a=unvalidate&id=' . $row['msitem_id'] . '&d=' . $durl . '&' . cot_xg()), 'mstore', 'mstore_confirm_unvalidate'),
+        'ADMIN_MSTORE_URL_FOR_DELETED' => cot_confirm_url(cot_url('admin', $common_params . '&a=delete&id=' . $row['msitem_id'] . '&d=' . $durl . '&' . cot_xg()), 'mstore', 'mstore_confirm_delete'),
+        'ADMIN_MSTORE_URL_FOR_EDIT' => cot_url('mstore', 'm=edit&id=' . $row['msitem_id']),
+        'ADMIN_MSTORE_ODDEVEN' => cot_build_oddeven($ii),
+        'ADMIN_MSTORE_CAT_COUNT' => $sub_count,
+    ]);
+    $t->assign(cot_generate_usertags($row['msitem_ownerid'], 'ADMIN_MSTORE_OWNER_'), htmlspecialchars($row['user_name'] ?? ''));
+    foreach ($extp as $pl) {
+        include $pl;
+    }
+    $t->parse('MAIN.MSTORE_ROW');
+    $ii++;
 }
 
 $totaldbitems = Cot::$db->countRows($db_mstore);
