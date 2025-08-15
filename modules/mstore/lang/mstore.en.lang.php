@@ -74,8 +74,8 @@ $L['mstore_Mstore'] = 'MultiStore';
 $useCfgMstoreFromLang = true; // Use configuration values from the localization file
 
 if ($useCfgMstoreFromLang === true) {
-    $cfg['mstore']['mstorelist_default_title'] = 'MultiStore Showcase on FunSmart Club';
-    $cfg['mstore']['mstorelist_default_desc'] = '<span class="badge text-bg-primary">Wholesale</span>, <span class="badge text-bg-success">dropshipping</span>, and <span class="badge text-bg-info">retail</span> - catalog of electric transport from wholesalers for online store owners and retail sellers in Ukraine';
+    $cfg['mstore']['mstorelist_default_title'] = 'MultiStore Showcase';
+    $cfg['mstore']['mstorelist_default_desc'] = '<span class="badge text-bg-primary">Wholesale</span>, <span class="badge text-bg-success">dropshipping</span>, and <span class="badge text-bg-info">retail</span> - catalog of electric transport from wholesalers for online store owners and retail sellers';
 }
 
 $L['adm_valqueue'] = 'In Approval Queue';
@@ -149,4 +149,5 @@ $Ls['pages_in_drafts'] = "item in drafts,items in drafts";
 $L['mstore_add_product'] = 'Add product';
 $L['mstore_user_products'] = 'User products';
 $L['mstore_no_products'] = 'No products';
+
 $L['mstore_price'] = 'Default Price';
