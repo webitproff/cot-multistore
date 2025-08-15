@@ -70,8 +70,8 @@ $L['mstore_Mstore'] = 'MultiStore';
 $useCfgMstoreFromLang = true; // Використовувати значення конфігурації з файлу локалізації
 
 if ($useCfgMstoreFromLang === true) {
-    $cfg['mstore']['mstorelist_default_title'] = 'Вітрина MultiStore на FunSmart Club';
-    $cfg['mstore']['mstorelist_default_desc'] = '<span class="badge text-bg-primary">Опт</span>, <span class="badge text-bg-success">дропшипінг</span> та <span class="badge text-bg-info">роздріб</span> - каталог електротранспорту від оптовиків для власників інтернет-магазинів та роздрібних продавців в Україні';
+    $cfg['mstore']['mstorelist_default_title'] = 'Вітрина MultiStore';
+    $cfg['mstore']['mstorelist_default_desc'] = '<span class="badge text-bg-primary">Опт</span>, <span class="badge text-bg-success">дропшипінг</span> та <span class="badge text-bg-info">роздріб</span> - каталог електротранспорту від оптовиків для власників інтернет-магазинів та роздрібних продавців';
 }
 
 $L['adm_valqueue'] = 'У черзі на затвердження';
@@ -146,3 +146,4 @@ $L['mstore_add_product'] = 'Додати товар';
 $L['mstore_user_products'] = 'Товари користувача';
 $L['mstore_no_products'] = 'Немає товарів';
 $L['mstore_price'] = 'Ціна за замовчуванням';
+
