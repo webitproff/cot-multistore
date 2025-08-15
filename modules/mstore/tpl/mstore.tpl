@@ -88,18 +88,6 @@
 					<!-- ENDIF -->
 				</div>
 				<div class="col-12 col-md-4">
-                    <!-- IF {MSTORE_COSTDFLT} > 0 -->
-                    <p class="mfw-bold">{PHP.L.mstore_price} 
-						<span class="ms-2 text-success">
-							{MSTORE_COSTDFLT} 				  
-							<!-- IF {PHP.cfg.payments.valuta} -->
-							{PHP.cfg.payments.valuta}
-							<!-- ELSE -->
-							{PHP.cfg.mstore.mstore_currency}
-							<!-- ENDIF -->
-						</span>
-					</p>
-                    <!-- ENDIF -->
 					<!-- IF {PHP|cot_plugin_active('mstoreprice')} -->
 					{MSTOREPRICE_PRICES}
 					<hr>
