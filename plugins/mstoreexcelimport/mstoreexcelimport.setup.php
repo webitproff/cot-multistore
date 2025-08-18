@@ -1,13 +1,12 @@
-а вот мой файл конфигурации плагина, где у нас есть use_function_strip_links и use_function_log
 <?php
 /* ====================
 [BEGIN_COT_EXT]
 Code=mstoreexcelimport
-Name=MStore Excel Import
+Name=MStore Excel Import Excel Import
 Category=tools
 Description=Plugin for importing data to MultiStore module from Excel files into Cotonti using PhpSpreadsheet
 Version=1.0.0
-Date=2025-07-25
+Date=2025-08-15
 Author=cot_webitproff
 Copyright=(c) 2025 cot_webitproff
 Notes=BSD License
@@ -29,13 +28,12 @@ use_function_log=05:radio::0:Использовать функцию логир�
 ==================== */
 
 /**
- * Excel Import plugin for Cotonti
+ * MStore Excel Import plugin for MStore on Cotonti
  *
- * @package ExcelImport
+ * @package mstoreexcelimport
  * @copyright (c) 2025 cot_webitproff
  * @license BSD License
  */
 
 defined('COT_CODE') or die('Wrong URL');
 
-а теперь наш документ с логикой импорта mstoreexcelimport.functions.php, нужно переписать так, чтобы учитывать эти две настройки
