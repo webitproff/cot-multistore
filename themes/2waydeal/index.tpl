@@ -1,6 +1,13 @@
 <!-- BEGIN: MAIN -->
 <div class="px-0 m-0 row justify-content-center">
-<div class="col-12 col-xxl-10">
+<div class="col-12 container-3xl">
+<!-- IF {PHP|cot_module_active('mstore')} -->
+<div class="px-0 px-md-3 py-4">
+	<div class="row">
+	{PHP|cot_getmstorelist('index', '3')}
+	</div>
+</div>
+<!-- ENDIF --> 
 <!-- IF {PHP|cot_module_active('projects')} -->
 <div class="px-0 px-md-3 py-4">
 	<div class="mb-4">
