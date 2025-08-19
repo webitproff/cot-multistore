@@ -1280,4 +1280,77 @@ function cot_mstore_enum(
 		$cache->disk->store($md5hash, $item_query_html, 'mstore');
 	}
 	return $item_query_html;
+
+}
+
+
+
+/**
+ * Возвращает список товаров mstore для отображения на главной
+ *
+ * @param string $template Шаблон для вывода (по умолчанию 'index')
+ * @param int $count Количество товаров для отображения (по умолчанию 5)
+ * @param string $sqlsearch Дополнительные условия WHERE для SQL (по умолчанию '')
+ * @param string $order Порядок сортировки SQL (по умолчанию 'msitem_date DESC')
+ * @return string Сформированный HTML код для вывода
+ */
+function cot_getmstorelist($template = 'index', $count = 5, $sqlsearch = '', $order = 'msitem_updated DESC')
+{
+    global $db, $db_mstore, $cfg, $db_users;
+
+    // Проверка прав доступа пользователя для модуля mstore
+    list($usr['auth_read'], $usr['auth_write'], $usr['isadmin']) = cot_auth('mstore', 'any', 'RWA');
+
+    // Инициализация шаблона
+    $t = new XTemplate(cot_tplfile(['mstore', $template], 'module'));
+
+    // Подготовка дополнительных условий поиска
+    $sqlsearch = !empty($sqlsearch) ? ' AND ' . $sqlsearch : '';
+
+    // Длина текста для обрезки: если не задана в конфиге, ставим значение по умолчанию
+    $truncateLen = isset($cfg['mstore']['mstoretruncatetext']) ? (int)$cfg['mstore']['mstoretruncatetext'] : 200;
+
+    // Основной запрос к базе mstore с JOIN на таблицу пользователей
+    $sqllist = $db->query("SELECT p.*, u.user_name 
+        FROM $db_mstore AS p 
+        LEFT JOIN $db_users AS u ON u.user_id = p.msitem_ownerid 
+        WHERE p.msitem_state = 0 $sqlsearch 
+        ORDER BY $order 
+        LIMIT " . (int)$count);
+
+    // Получение всех результатов запроса
+    $sqllist_rowset = $sqllist->fetchAll();
+
+    // Собираем ID и алиасы товаров (может понадобиться для дальнейшей обработки)
+    $sqllist_idset = [];
+    foreach ($sqllist_rowset as $item) {
+        $sqllist_idset[$item['msitem_id']] = $item['msitem_alias'];
+    }
+
+    // Нумерация для чередования классов (odd/even)
+    $jj = 0;
+    foreach ($sqllist_rowset as $item) {
+        $jj++;
+
+        // Присвоение тегов владельца товара
+        $t->assign(cot_generate_usertags($item, 'MSTORE_ROW_OWNER_'));
+
+        // Присвоение тегов товара с учетом длины обрезки текста
+        $t->assign(cot_generate_mstoretags($item, 'MSTORE_ROW_', $truncateLen, 
+                                           $usr['isadmin'], $cfg['homebreadcrumb']));
+
+        // Чередование классов для строк (odd/even)
+        $t->assign([
+            'MSTORE_ROW_ODDEVEN' => cot_build_oddeven($jj),
+        ]);
+
+        // Парсинг одной строки товара
+        $t->parse('MSTORE.MSTORE_ROW');
+    }
+
+    // Парсинг всего блока товаров
+    $t->parse('MSTORE');
+
+    // Возвращаем готовый HTML
+    return $t->text('MSTORE');
 }
