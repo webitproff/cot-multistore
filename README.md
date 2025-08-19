@@ -9,7 +9,7 @@ Multistore Build modules and plugins for Cotonti v.0.9.26
 
 # 🇬🇧 Multistore for Cotonti v.0.9.26
 
-Features of the Multistore module for Cotonti v.0.9.26
+Features of the Multistore module for [CMF Cotonti](https://github.com/Cotonti/Cotonti) v.0.9.26
 
 Supports multiple online stores from one or many sellers.  
 The "Multistore" build implements a virtual concept of a physical marketplace where sellers of different goods can have their own storefront.  
@@ -66,7 +66,7 @@ When viewing the product list, items can be filtered by categories from a dropdo
 # Multistore Extension Pack Installation Guide
 
 1. Install the website engine [CMF Cotonti](https://github.com/Cotonti/Cotonti).
-2. Download the source code of the "Multistore" build from the GitHub repository and extract the archive to your computer.
+2. Download the source code of the "Multistore" build from the [GitHub](https://github.com/webitproff/cot-multistore/) repository and extract the archive to your computer.
 3. Upload the contents of the `cot-multistore-main` folder to the root of your website where your CMF Cotonti is already installed.
 4. Open `/datas/config.php` and set the frontend and admin themes:
 
@@ -148,7 +148,7 @@ For any errors or questions, please post on the "Multistore" support forum [here
 # Порядок установки сборки расширений "Multistore"
 
 1. Устанавливаем движок сайта [CMF Cotonti](https://github.com/Cotonti/Cotonti).
-2. Скачиваем исходный код сборки "Multistore" с репозитория на GitHub и распаковываем архив на компьютер.
+2. Скачиваем исходный код сборки "Multistore" с репозитория на [GitHub](https://github.com/webitproff/cot-multistore/) и распаковываем архив на компьютер.
 3. Содержимое папки `cot-multistore-main` загрузить в корень сайта, где уже установлен ваш CMF Cotonti.
 4. Открываем `/datas/config.php` и прописываем темы фронт-энда и админки:
 
