@@ -63,6 +63,32 @@ When editing a product, all created price types are available, and you can set d
 The "Sellers and their products" plugin is a simple and convenient tool to display a list of users with their product counts and a detailed list of each seller’s products.  
 When viewing the product list, items can be filtered by categories from a dropdown. Only categories where the seller has listed products are shown.  
 
+# Multistore Extension Pack Installation Guide
+
+1. Install the website engine [CMF Cotonti](https://github.com/Cotonti/Cotonti).
+2. Download the source code of the "Multistore" build from the GitHub repository and extract the archive to your computer.
+3. Upload the contents of the `cot-multistore-main` folder to the root of your website where your CMF Cotonti is already installed.
+4. Open `/datas/config.php` and set the frontend and admin themes:
+
+```php
+$cfg['defaulttheme'] = '2waydeal'; // Default theme code. frontend
+$cfg['admintheme'] = 'cotcp';      // Put custom administration theme name here
+```
+
+5. Create a folder named `attacher` in the root of your website for storing images and files.
+6. Install the `mstore` module first, then install the remaining plugins:
+
+- `attacher` — attaches images and files to products
+- `mstoreautoalias` — generates aliases from product titles
+- `mstoreexcelimport` — imports products from Excel
+- `mstorefilter` — product filter
+- `mstoreprice` — prices and currencies
+- `mstoreuserproducts` — lists of sellers and their products on the site
+
+For any errors or questions, please post on the "Multistore" support forum [here](https://abuyfile.com/ru/forums/mstore).
+
+19 Aug 2025
+---
 
 # 🇷🇺 Multistore для Cotonti v.0.9.26
 
@@ -119,3 +145,28 @@ When viewing the product list, items can be filtered by categories from a dropdo
 При просмотре списка товаров можно фильтровать товары по категориям из выпадающего списка. Стоит отметить, что в списке только те категории, в которых данный пользователь размещал товары.  
 
 ---
+# Порядок установки сборки расширений "Multistore"
+
+1. Устанавливаем движок сайта [CMF Cotonti](https://github.com/Cotonti/Cotonti).
+2. Скачиваем исходный код сборки "Multistore" с репозитория на GitHub и распаковываем архив на компьютер.
+3. Содержимое папки `cot-multistore-main` загрузить в корень сайта, где уже установлен ваш CMF Cotonti.
+4. Открываем `/datas/config.php` и прописываем темы фронт-энда и админки:
+
+```php
+$cfg['defaulttheme'] = '2waydeal'; // Default theme code. frontend
+$cfg['admintheme'] = 'cotcp';      // Put custom administration theme name here
+```
+
+5. В корне сайта создаем папку `attacher` — для хранения картинок и файлов.
+6. Сразу устанавливается модуль `mstore`, а затем уже остальные плагины:
+
+- `attacher` — прикрепление к товарам картинок и файлов
+- `mstoreautoalias` — генерация алиасов из заголовков
+- `mstoreexcelimport` — импорт товаров из Excel
+- `mstorefilter` — фильтр товаров
+- `mstoreprice` — цены и валюты
+- `mstoreuserproducts` — списки продавцов и их товары на сайте
+
+Обо всех найденных ошибках или возникших вопросах, просьба писать на форуме поддержки сборки ["Multistore"](https://abuyfile.com/ru/forums/mstore).
+
+19 Aug 2025
