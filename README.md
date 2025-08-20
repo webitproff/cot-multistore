@@ -1,6 +1,8 @@
 # cot-multistore
 Multistore Build modules and plugins for Cotonti v.0.9.26
 
+<img src="https://raw.githubusercontent.com/webitproff/cot-multistore/refs/heads/main/multistore-cotonti-online-catalog.webp" alt="Multistore on Cotonti CMF">
+
 # [Demo](https://multistore.previewit.work/mstore)
 # [Support](https://abuyfile.com/ru/forums/mstore)
 # [Source code on GitHub](https://github.com/webitproff/cot-multistore)
