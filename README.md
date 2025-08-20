@@ -87,7 +87,9 @@ $cfg['admintheme'] = 'cotcp';      // Put custom administration theme name here
 - `mstoreprice` — prices and currencies
 - `mstoreuserproducts` — lists of sellers and their products on the site
 
-For any errors or questions, please post on the "Multistore" support forum [here](https://abuyfile.com/ru/forums/mstore).
+---
+At the moment, the source code is being refactored and adapted for compatibility with PHP 8.4+, and therefore there may be various kinds of bugs and errors during the use of the Multistore build. All of them are quite easy to fix and solve, do not be afraid of them and give up if you do not understand something. Write about all the errors and bugs in the Multistore website assembly on the support forum and you will be the first to learn about their debugging.
+**For any errors or questions, please post on the "Multistore" support forum [here](https://abuyfile.com/ru/forums/mstore).**
 
 19 Aug 2025
 ---
@@ -169,6 +171,8 @@ $cfg['admintheme'] = 'cotcp';      // Put custom administration theme name here
 - `mstoreprice` — цены и валюты
 - `mstoreuserproducts` — списки продавцов и их товары на сайте
 
-Обо всех найденных ошибках или возникших вопросах, просьба писать на форуме поддержки сборки ["Multistore"](https://abuyfile.com/ru/forums/mstore).
+---
+В данный момент исходный код рефакторится и адаптируется для совместимости с PHP 8.4 + и поэтому в процессе использования сборки Multistore могут быть различного рода баги и ошибки. Все они достаточно легко фиксятся и решаются, не стоит их бояться и опускать руки, если что-то не понимаете или не получается. Обо всех ошибках и багах в работе сборки сайта Multistore пишите на форуме поддержки и вы первыми узнаете об их отладке.
+**Обо всех найденных ошибках или возникших вопросах, просьба писать [на форуме поддержки сборки "Multistore"](https://abuyfile.com/ru/forums/mstore).**
 
 19 Aug 2025
