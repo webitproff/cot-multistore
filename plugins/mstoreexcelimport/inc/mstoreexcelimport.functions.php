@@ -23,10 +23,7 @@ spl_autoload_register(function (string $class) use ($libPathPsr): void {
 require_once "$libPathPhpSpreadsheet/Spreadsheet.php";
 require_once "$libPathPhpSpreadsheet/IOFactory.php";
 
-/* function cot_mstoreexcelimport_log(string $message): void {
-    global $logFile;
-    file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] $message\n", FILE_APPEND);
-} */
+
 /**
  * Логирование сообщений в файл, если включено в конфиге плагина
  */
@@ -124,20 +121,216 @@ function cot_mstoreexcelimport_get_headers(string $filePath, string $fileName): 
     }
 }
 
-/* function cot_mstoreexcelimport_strip_links(string $html): string {
-    // Удалить <a href="...">ссылка</a>, оставив текст внутри
-    $html = preg_replace_callback('#<a[^>]*>(.*?)</a>#si', function ($m) {
-        return strip_tags($m[1]);
-    }, $html);
 
-    // Удалить прямые ссылки вида https://example.com или www.example.com
-    $html = preg_replace('#\b(?:https?://|www\.)\S+\b#i', '', $html);
+/**
+ * Импорт данных из Excel/CSV в таблицу mstore.
+ *
+ * @param string $filePath Путь к файлу Excel/CSV на сервере.
+ * @param array  $mapping  Ассоциативный массив маппинга: поле БД => заголовок в Excel.
+ * @param string $fileName Имя файла (для проверки расширения).
+ *
+ * @return string Результат выполнения импорта (успешно/ошибка).
+ */
+function cot_mstoreexcelimport_process(string $filePath, array $mapping, string $fileName): string {
+    // Подключаем глобальные переменные
+    global $db, $cfg, $db_x, $db_mstore, $sys, $usr;
 
-    return $html;
-} */
+    // Определяем таблицу для импорта
+    $db_mstore = $db_x . 'mstore';
 
+    // Проверяем формат файла
+    $fileExt = cot_mstoreexcelimport_check_format($fileName);
+    if ($fileExt === false) return "Ошибка: формат не поддерживается.";
 
+    try {
+        // Определяем существующие колонки в таблице
+        $existingColumns = [];
+        $colsRes = $db->query("SHOW COLUMNS FROM `$db_mstore`")->fetchAll();
+        foreach ($colsRes as $col) {
+            // Добавляем имя колонки в список
+            $existingColumns[] = $col['Field'];
+        }
+        // Логируем найденные поля
+        cot_mstoreexcelimport_log("Найденные поля таблицы: " . implode(', ', $existingColumns));
 
+        // Определяем тип ридера (CSV или XLSX)
+        $readerType = ($fileExt === 'csv') ? 'Csv' : 'Xlsx';
+
+        // Создаём объект ридера
+        $reader = PhpOffice\PhpSpreadsheet\IOFactory::createReader($readerType);
+
+        // Читаем только данные (без стилей)
+        $reader->setReadDataOnly(true);
+
+        // Загружаем файл
+        $spreadsheet = $reader->load($filePath);
+
+        // Получаем активный лист
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Определяем количество строк
+        $totalRows = $sheet->getHighestRow() - 1;
+
+        // Лимит строк для импорта
+        $maxRows = (int) ($cfg['plugin']['mstoreexcelimport']['max_rows'] ?? 100);
+
+        // Сбрасываем прогресс в сессии
+        $_SESSION['import_progress'] = 0;
+        $_SESSION['import_total'] = min($totalRows, $maxRows > 0 ? $maxRows : $totalRows);
+
+        // Счётчик импортированных строк
+        $importedRows = 0;
+
+        // Получаем заголовки столбцов
+        $headers = cot_mstoreexcelimport_get_headers($filePath, $fileName);
+        if (!is_array($headers)) return $headers;
+
+        // Логируем маппинг
+        cot_mstoreexcelimport_log("Маппинг: " . json_encode($mapping));
+
+        // Перебираем строки в файле
+        foreach ($sheet->getRowIterator() as $row) {
+            // Пропускаем строку заголовка и строки за пределом лимита
+            if ($row->getRowIndex() === 1 || ($maxRows > 0 && $importedRows >= $maxRows)) continue;
+
+            // Массив данных строки
+            $data = [];
+            foreach ($row->getCellIterator() as $cell) {
+                // Получаем значение ячейки
+                $value = $cell->getValue();
+
+                // Если это дата Excel — преобразуем в timestamp
+                if ($value instanceof \PhpOffice\PhpSpreadsheet\Shared\Date) {
+                    $value = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToTimestamp($value);
+                }
+
+                // Добавляем в массив данных
+                $data[] = trim((string) $value);
+            }
+
+            // Логируем обработку строки
+            cot_mstoreexcelimport_log("Обрабатываемая строка {$row->getRowIndex()}: " . json_encode($data));
+
+            // Создаём массив записи
+            $record = [];
+
+            // Значения по умолчанию
+            $defaults = [
+                'msitem_id' => null,
+                'msitem_alias' => '',
+                'msitem_state' => 0,
+                'msitem_cat' => '',
+                'msitem_title' => '',
+                'msitem_desc' => '',
+                'msitem_keywords' => '',
+                'msitem_metatitle' => '',
+                'msitem_metadesc' => '',
+                'msitem_text' => '',
+                'msitem_costdflt' => 0.00,
+                'msitem_price_opt' => 0.00,
+                'msitem_price_drop' => 0.00,
+                'msitem_price_rr' => 0.00,
+                'msitem_parser' => 'html',
+                'msitem_author' => '',
+                'msitem_ownerid' => $usr['id'] ?: 1,
+                'msitem_date' => (int) Cot::$sys['now'],
+                'msitem_begin' => (int) Cot::$sys['now'],
+                'msitem_expire' => 0,
+                'msitem_updated' => (int) Cot::$sys['now'],
+                'msitem_count' => 0,
+            ];
+
+            // Заполняем только существующие поля значениями по умолчанию
+            foreach ($defaults as $field => $defValue) {
+                if (in_array($field, $existingColumns)) {
+                    $record[$field] = $defValue;
+                }
+            }
+
+            // Заполняем данными из Excel по маппингу
+            foreach ($mapping as $dbField => $excelHeader) {
+                if (in_array($dbField, $existingColumns) && $excelHeader && ($colIndex = array_search($excelHeader, $headers)) !== false) {
+                    // Берём значение ячейки
+                    $value = $data[$colIndex] ?? '';
+
+                    // Если поле — дата
+                    if (in_array($dbField, ['msitem_date', 'msitem_begin', 'msitem_expire', 'msitem_updated'])) {
+                        $timestamp = is_numeric($value) ? (int)$value : strtotime((string)$value);
+                        $record[$dbField] = $timestamp ?: (int) Cot::$sys['now'];
+                        cot_mstoreexcelimport_log("Дата для $dbField: исходное '$value', результат {$record[$dbField]}");
+
+                    // Если поле — цена
+                    } elseif (in_array($dbField, ['msitem_costdflt', 'msitem_price_opt', 'msitem_price_drop', 'msitem_price_rr'])) {
+                        $value = str_replace(',', '.', (string)$value);
+                        $integerPart = (int)explode('.', $value)[0];
+                        $record[$dbField] = number_format($integerPart, 2, '.', '');
+                        cot_mstoreexcelimport_log("Цена для $dbField: исходное '$value', результат {$record[$dbField]}");
+
+                    // Если текстовое поле — удаляем ссылки
+                    } elseif (in_array($dbField, ['msitem_text', 'msitem_desc', 'msitem_metadesc'])) {
+                        $record[$dbField] = cot_mstoreexcelimport_strip_links((string)$value);
+
+                    // Все остальные поля — сохраняем как строку
+                    } else {
+                        $record[$dbField] = (string)$value;
+                    }
+                }
+            }
+
+            // Проверка обязательных полей (категория и заголовок)
+            if (
+                (in_array('msitem_cat', $existingColumns) && trim((string)($record['msitem_cat'] ?? '')) === '') ||
+                (in_array('msitem_title', $existingColumns) && trim((string)($record['msitem_title'] ?? '')) === '')
+            ) {
+                cot_mstoreexcelimport_log("Строка {$row->getRowIndex()} пропущена: пустые msitem_cat или msitem_title");
+                continue;
+            }
+
+            // Если msitem_text пустой — подставляем заголовок
+            if (in_array('msitem_text', $existingColumns) && empty($record['msitem_text']) && !empty($record['msitem_title'])) {
+                $record['msitem_text'] = $record['msitem_title'];
+                cot_mstoreexcelimport_log("msitem_text пуст — подставлен заголовок: {$record['msitem_title']}");
+            }
+
+            // Логируем подготовленный массив
+            cot_mstoreexcelimport_log("Подготовленный массив для вставки: " . json_encode($record));
+
+            try {
+                // Пытаемся вставить запись в базу
+                if (!empty($record) && $db->insert($db_mstore, $record)) {
+                    $importedRows++;
+                    $_SESSION['import_progress'] = $importedRows;
+                    cot_mstoreexcelimport_log("Импортирована строка {$row->getRowIndex()}: " . implode(', ', $data));
+                } else {
+                    cot_mstoreexcelimport_log("Ошибка вставки строки {$row->getRowIndex()}: не удалось добавить запись");
+                }
+            } catch (Exception $e) {
+                // Логируем исключение при вставке
+                cot_mstoreexcelimport_log("Исключение при вставке строки {$row->getRowIndex()}: " . $e->getMessage());
+            }
+        }
+
+        // Финальный результат
+        $result = "Импорт завершён. Добавлено записей: $importedRows из $totalRows";
+        cot_mstoreexcelimport_log($result);
+
+        // Чистим сессию
+        unset($_SESSION['import_progress'], $_SESSION['import_total']);
+
+        // Возвращаем результат
+        return $result;
+
+    } catch (Exception $e) {
+        // Обработка исключения
+        $error = "Ошибка импорта: " . $e->getMessage();
+        cot_mstoreexcelimport_log($error);
+        return $error;
+    }
+}
+
+//на всякий пока оставляем
+
+/* 
 
 function cot_mstoreexcelimport_process(string $filePath, array $mapping, string $fileName): string {
     global $db, $cfg, $db_x, $db_mstore, $sys, $usr;
@@ -217,31 +410,40 @@ function cot_mstoreexcelimport_process(string $filePath, array $mapping, string 
                     $record[$field] = $defValue;
                 }
             }
+			// Заполняем данными из Excel только те поля, которые реально есть в таблице
+			foreach ($mapping as $dbField => $excelHeader) {
+				if (in_array($dbField, $existingColumns) && $excelHeader && ($colIndex = array_search($excelHeader, $headers)) !== false) {
+					$value = $data[$colIndex] ?? '';
 
-            // Заполняем данными из Excel только те поля, которые реально есть в таблице
-            foreach ($mapping as $dbField => $excelHeader) {
-                if (in_array($dbField, $existingColumns) && $excelHeader && ($colIndex = array_search($excelHeader, $headers)) !== false) {
-                    $value = $data[$colIndex] ?? '';
+					if (in_array($dbField, ['msitem_date', 'msitem_begin', 'msitem_expire', 'msitem_updated'])) {
+						$timestamp = is_numeric($value) ? (int)$value : strtotime((string)$value);
+						$record[$dbField] = $timestamp ?: (int) Cot::$sys['now'];
+						cot_mstoreexcelimport_log("Дата для $dbField: исходное '$value', результат {$record[$dbField]}");
 
-                    if (in_array($dbField, ['msitem_date', 'msitem_begin', 'msitem_expire', 'msitem_updated'])) {
-                        $timestamp = is_numeric($value) ? (int)$value : strtotime((string)$value);
-                        $record[$dbField] = $timestamp ?: (int) Cot::$sys['now'];
-                        cot_mstoreexcelimport_log("Дата для $dbField: исходное '$value', результат {$record[$dbField]}");
+					} elseif (in_array($dbField, ['msitem_costdflt', 'msitem_price_opt', 'msitem_price_drop', 'msitem_price_rr'])) {
+						$value = str_replace(',', '.', (string)$value);
+						$integerPart = (int)explode('.', $value)[0];
+						$record[$dbField] = number_format($integerPart, 2, '.', '');
+						cot_mstoreexcelimport_log("Цена для $dbField: исходное '$value', результат {$record[$dbField]}");
 
-                    } elseif (in_array($dbField, ['msitem_costdflt', 'msitem_price_opt', 'msitem_price_drop', 'msitem_price_rr'])) {
-                        $value = str_replace(',', '.', (string)$value);
-                        $integerPart = (int)explode('.', $value)[0];
-                        $record[$dbField] = number_format($integerPart, 2, '.', '');
-                        cot_mstoreexcelimport_log("Цена для $dbField: исходное '$value', результат {$record[$dbField]}");
+					} elseif (in_array($dbField, ['msitem_text', 'msitem_desc', 'msitem_metadesc'])) {
+						$record[$dbField] = cot_mstoreexcelimport_strip_links((string)$value);
 
-                    } elseif (in_array($dbField, ['msitem_text', 'msitem_desc', 'msitem_metadesc'])) {
-                        $record[$dbField] = cot_mstoreexcelimport_strip_links((string)$value);
+					} else {
+						$record[$dbField] = (string)$value;
+					}
+				}
+			}
 
-                    } else {
-                        $record[$dbField] = (string)$value;
-                    }
-                }
-            }
+			// >>> пропускаем строку, если нет категории или заголовка
+			if (
+				(in_array('msitem_cat', $existingColumns) && trim((string)($record['msitem_cat'] ?? '')) === '') ||
+				(in_array('msitem_title', $existingColumns) && trim((string)($record['msitem_title'] ?? '')) === '')
+			) {
+				cot_mstoreexcelimport_log("Строка {$row->getRowIndex()} пропущена: пустые msitem_cat или msitem_title");
+				continue;
+			}
+
 
             // Если msitem_text пустой — подставляем заголовок
             if (in_array('msitem_text', $existingColumns) && empty($record['msitem_text']) && !empty($record['msitem_title'])) {
@@ -276,5 +478,5 @@ function cot_mstoreexcelimport_process(string $filePath, array $mapping, string 
         return $error;
     }
 }
-
+ */
 ?>
