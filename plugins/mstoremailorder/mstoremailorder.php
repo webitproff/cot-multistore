@@ -6,7 +6,7 @@ Hooks=standalone
 ==================== */
 
 /**
- * MStore Email Order plugin: standalone. CMF Cotonti Siena v.0.9.26 PHP 8.4 
+ * MStore Email Order plugin: standalone for Mode choice
  * Filename: mstoremailorder.php
  * @package MStoreEmailOrder for CMF Cotonti Siena v.0.9.26 on PHP 8.4
  * Version=2.0.1
@@ -30,13 +30,20 @@ require_once cot_incfile('extrafields');
 // Mode details - страница со всеми деталями конкретного заказа
 // Mode new - страница с формой создания нового заказа
 if (!in_array($m, ['incoming', 'outgoing', 'complaint'])) {
-    if (isset($_GET['id'])) {
-        $m = 'details';
+    if (isset($_GET['id']) && is_numeric($_GET['id']) && $_GET['id'] > 0) {
+        $m = 'details'; // Режим просмотра деталей заказа
     } else {
-        $m = 'new';
+	// Инициализация $item_id из GET или POST
+	// импортируем id товара для создания заказа из mstoremailorder.new.php
+		$item_id = cot_import('item_id', 'G', 'INT') ?: cot_import('item_id', 'P', 'INT'); 
+        // Проверяем $item_id для режима создания заказа
+        if (cot_mstoremailorder_block_id_empty()) {
+            $m = 'new';
+        }
+        // Если $item_id некорректен, функция cot_mstoremailorder_block_id_empty()
+
     }
 }
-
 require_once cot_incfile('mstoremailorder', 'plug', $m);
 
 ?>
