@@ -27,6 +27,20 @@ function mstoremailorder_log($message, $pluginDir) {
         error_log("mstoremailorder_log: Cannot write to $logPath. Message: $message");
     }
 }
+
+// Функция проверки $item_id
+function cot_mstoremailorder_block_id_empty()
+{
+    global $item_id, $sys;
+
+    if (empty($item_id) || !is_numeric($item_id) || $item_id < 1) {
+        cot_redirect(cot_url('message', 'msg=930&' . $sys['url_redirect'], '', true));
+        return false;
+    }
+    return true;
+}
+
+
 function mstoremailorder_send_email($to, $subject, $body) {
     global $cfg;
 
@@ -371,4 +385,5 @@ function mstoremailorder_notify_complaint_status($complaint) {
         mstoremailorder_send_email($cfg['adminemail'], $subject, $body);
     }
 }
+
 ?>
